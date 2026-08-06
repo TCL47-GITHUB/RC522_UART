@@ -1,3 +1,12 @@
+/*
+ * RC522_UART Library Example
+ * 
+ * Tác giả (Author): Trương Công Lý (TCL47)
+ * SĐT (Phone): 0392100200
+ * Facebook: https://www.facebook.com/truongcongly.fb/
+ * X/Twitter: https://x.com/truongcongly47
+ * Github: https://github.com/TCL47-GITHUB/RC522_UART
+ */
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include "RC522_UART.h"
