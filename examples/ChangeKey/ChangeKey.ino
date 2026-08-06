@@ -8,9 +8,9 @@
  * Github: https://github.com/TCL47-GITHUB/RC522_UART
  * 
  * Example: ChangeKey
- * Description: Safely changes Key A of a specific sector by preserving the existing Access Bits.
+ * Description: Dynamically detects the current Key A from a list of known keys, 
+ * then asks the user to input a NEW Key A via the Serial Monitor.
  * WARNING: Do NOT modify the Access Bits (Bytes 6, 7, 8) unless you know what you are doing. 
- * Doing so incorrectly will permanently lock/brick the sector!
  */
 #include <Arduino.h>
 #include "RC522_UART.h"
@@ -21,11 +21,22 @@ RC522_UART rfid(&Serial1);
 uint8_t targetSector = 2;
 uint8_t trailerBlock = targetSector * 4 + 3; // Block 11
 
-// The old default key (factory)
-uint8_t oldKeyA[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+// List of common known keys (Factory default, NDEF, etc.)
+const int numKnownKeys = 4;
+uint8_t knownKeys[numKnownKeys][6] = {
+  {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, // Factory Default
+  {0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7}, // NDEF Format
+  {0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6}, // Custom Test Key
+  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}  // All Zero
+};
 
-// The new secret key you want to set
-uint8_t newKeyA[6] = {0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6};
+void printKey(uint8_t* key) {
+  for (int i = 0; i < 6; i++) {
+    if (key[i] < 0x10) Serial.print("0");
+    Serial.print(key[i], HEX);
+    Serial.print(" ");
+  }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -41,39 +52,84 @@ void loop() {
     uint8_t uid[4];
     if (rfid.anticoll(uid)) {
       if (rfid.select(uid)) {
-        Serial.println("Card detected.");
+        Serial.println("\n--- Card detected! ---");
         
-        // 1. Authenticate with OLD key first
-        if (rfid.authState(RC522_AUTH_KEY_A, trailerBlock, oldKeyA, uid)) {
-          Serial.println("Auth OK with Old Key. Reading Sector Trailer...");
+        // 1. Try to guess the current key
+        int matchedKeyIndex = -1;
+        for (int i = 0; i < numKnownKeys; i++) {
+          if (rfid.authState(RC522_AUTH_KEY_A, trailerBlock, knownKeys[i], uid)) {
+            matchedKeyIndex = i;
+            break;
+          }
+        }
+        
+        if (matchedKeyIndex != -1) {
+          Serial.print("SUCCESS! Found current Key A: ");
+          printKey(knownKeys[matchedKeyIndex]);
+          Serial.println();
           
+          // 2. Read Sector Trailer (to preserve access bits)
           uint8_t trailerData[16];
-          // 2. Read the Sector Trailer BEFORE writing!
-          // We MUST do this to keep the Access Bits (bytes 6,7,8) unchanged.
           if (rfid.readBlock(trailerBlock, trailerData)) {
             
-            // 3. Replace the first 6 bytes with our new Key A
-            for (int i = 0; i < 6; i++) {
-              trailerData[i] = newKeyA[i];
+            // 3. Ask user for new key
+            Serial.println(">>> Please type the NEW 6-byte key in HEX (e.g. 1A 2B 3C 4D 5E 6F) into Serial Monitor:");
+            
+            // Clear Serial buffer
+            while(Serial.available()) Serial.read();
+            
+            // Wait for user input
+            while(Serial.available() < 12) { // Need at least 12 hex chars + spaces
+              delay(10);
             }
             
-            // 4. Write the modified Sector Trailer back to the card
+            // Parse user input
+            uint8_t newKey[6];
+            int keyIndex = 0;
+            String inputBuffer = "";
+            while (Serial.available() && keyIndex < 6) {
+              char c = Serial.read();
+              if (c == ' ' || c == '\n' || c == '\r') continue;
+              inputBuffer += c;
+              
+              if (inputBuffer.length() == 2) {
+                newKey[keyIndex] = (uint8_t) strtol(inputBuffer.c_str(), NULL, 16);
+                inputBuffer = "";
+                keyIndex++;
+              }
+            }
+            
+            Serial.print("You entered new Key A: ");
+            printKey(newKey);
+            Serial.println();
+            
+            // 4. Update Key A in trailer data
+            for (int i = 0; i < 6; i++) {
+              trailerData[i] = newKey[i];
+            }
+            
+            // 5. Write back to card
             if (rfid.writeBlock(trailerBlock, trailerData)) {
-              Serial.println("SUCCESS! Key A has been changed.");
-              Serial.println("To test it again, you must swap newKeyA and oldKeyA in the code.");
+              Serial.println(">>> KEY CHANGED SUCCESSFULLY! <<<");
+              Serial.println("Please update the 'knownKeys' array in code if you want to detect this key next time.");
             } else {
-              Serial.println("Failed to write new key!");
+              Serial.println("Write Failed!");
             }
             
           } else {
             Serial.println("Failed to read Sector Trailer.");
           }
         } else {
-          Serial.println("Auth FAILED! The key might have already been changed.");
+          Serial.println("Auth FAILED! None of the known keys worked.");
+          Serial.println("Please add your card's key to the 'knownKeys' array.");
         }
         
         rfid.halt();
-        delay(3000);
+        delay(2000);
+        
+        // Clear serial buffer before next card
+        while(Serial.available()) Serial.read();
+        Serial.println("\nReady for next card...");
       }
     }
   }
