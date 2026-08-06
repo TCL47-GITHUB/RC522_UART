@@ -14,7 +14,12 @@ RC522_UART rfid(&Serial1);
 void setup() {
   Serial.begin(115200);
   
-  // Initialize Serial1 for RC522 (Baudrate MUST be 115200)
+  // NOTE FOR ESP32 USERS: 
+  // Serial1 defaults to pins used by the flash memory!
+  // You MUST define the RX and TX pins like this:
+  // Serial1.begin(115200, SERIAL_8N1, 16, 17); // RX = 16, TX = 17
+  
+  // For standard Arduino Mega/Leonardo:
   Serial1.begin(115200); 
   
   // Wait for Serial ports to be ready

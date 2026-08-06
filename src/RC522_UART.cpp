@@ -44,7 +44,7 @@ void RC522_UART::sendPacket(uint8_t cmd, uint8_t* data, uint8_t dataLen) {
 
 bool RC522_UART::receivePacket(uint8_t* returnData, uint8_t expectedReturnLen, uint32_t timeoutMs) {
     uint32_t startMs = millis();
-    uint8_t rxBuffer[32]; // Max expected response is 16 bytes data + 2 bytes headers = 18 bytes
+    uint8_t rxBuffer[32]; 
     uint8_t rxIndex = 0;
     
     uint8_t expectedTotalLen = expectedReturnLen + 2; // + Header + Tail
@@ -53,26 +53,37 @@ bool RC522_UART::receivePacket(uint8_t* returnData, uint8_t expectedReturnLen, u
         if (_serial->available()) {
             rxBuffer[rxIndex++] = _serial->read();
             
-            // Check if we received enough bytes
+            // Check if we reached expected length
             if (rxIndex >= expectedTotalLen) {
-                // Verify Header
-                if (rxBuffer[0] != RC522_HEADER) return false;
+                // If header is wrong, shift left by 1 to resync
+                if (rxBuffer[0] != RC522_HEADER) {
+                    for(int i = 1; i < rxIndex; i++) rxBuffer[i-1] = rxBuffer[i];
+                    rxIndex--;
+                    continue;
+                }
                 
-                // Verify Tail
                 uint8_t tail = rxBuffer[rxIndex - 1];
+                
+                // If it is an echo of PcdRequest (0x7F 0x03 0x52 0xF7), ignore it and reset buffer
+                if (rxIndex == 4 && rxBuffer[1] == RC522_CMD_REQUEST && rxBuffer[2] == 0x52 && tail == RC522_TAIL_OK) {
+                    rxIndex = 0; // Drop echo, wait for actual response
+                    continue;
+                }
+
                 if (tail == RC522_TAIL_OK) {
                     if (returnData != nullptr && expectedReturnLen > 0) {
                         for (uint8_t i = 0; i < expectedReturnLen; i++) {
-                            returnData[i] = rxBuffer[1 + i]; // Skip header
+                            returnData[i] = rxBuffer[1 + i];
                         }
                     }
                     return true;
                 } else if (tail == RC522_TAIL_ERR) {
                     return false;
+                } else {
+                    // Invalid tail, shift left to resync
+                    for(int i = 1; i < rxIndex; i++) rxBuffer[i-1] = rxBuffer[i];
+                    rxIndex--;
                 }
-                
-                // If tail is not OK nor ERR, it's malformed
-                return false;
             }
         }
     }
