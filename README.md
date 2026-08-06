@@ -1,5 +1,7 @@
 # RC522_UART Arduino Library
 
+[🇻🇳 Đọc bằng Tiếng Việt (Vietnamese)](README_vn.md)
+
 An Arduino library for the RC522 Mini RFID 13.56MHz module with UART interface.
 
 This library simplifies communication with the RC522 module using the UART protocol documented for the mini version. It works over any `Stream` object, meaning you can use hardware serial ports (`Serial1`, `Serial2`) or `SoftwareSerial`.
@@ -83,7 +85,8 @@ void loop() {
 1. `ReadUID.ino`: Simple script to detect cards and print their UID.
 2. `ReadWriteBlock.ino`: Shows the standard process to request, authenticate, read, and write a data block.
 3. `WalletOperation.ino`: Demonstrates how to use PcdValue commands to recharge, deduct, and backup an electronic wallet block on Mifare Classic.
-4. `SoftwareSerial.ino`: Shows how to connect the module to an Arduino Uno using `SoftwareSerial` pins 2 and 3.
+4. `FormatValueBlock.ino`: Shows how to format a blank block into the strict 16-byte Value Block format required for WalletOperation.
+5. `SoftwareSerial.ino`: Shows how to connect the module to an Arduino Uno using `SoftwareSerial` pins 2 and 3.
 
 ## License
 MIT License. Feel free to use it in your projects.
