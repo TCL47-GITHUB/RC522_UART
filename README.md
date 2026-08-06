@@ -59,6 +59,22 @@ void loop() {
 ```
 ```
 
+## Constants & Definitions
+
+The library uses the following constants for its parameters:
+
+**Request Modes (`reqMode`)**
+- `RC522_REQ_ALL` (0x52): Finds all cards in the antenna area, including those that were put to sleep (halted).
+- `RC522_REQ_NOT_HALT` (0x26): Only finds cards that are awake (not halted).
+
+**Authentication Modes (`authMode`)**
+- `RC522_AUTH_KEY_A` (0x60): Authenticate using Key A.
+- `RC522_AUTH_KEY_B` (0x61): Authenticate using Key B.
+
+**Value Operations (`op`)**
+- `RC522_VALUE_RECHARGE` (0xC1): Adds the specified value to the Wallet Block.
+- `RC522_VALUE_DEDUCT` (0xC0): Subtracts the specified value from the Wallet Block.
+
 ## API Reference
 
 ### Initialization & Config

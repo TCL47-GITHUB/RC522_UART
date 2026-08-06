@@ -58,6 +58,22 @@ void loop() {
 }
 ```
 
+## Các hằng số (Constants & Definitions)
+
+Thư viện sử dụng các hằng số sau làm tham số truyền vào hàm:
+
+**Chế độ quét thẻ (`reqMode`)**
+- `RC522_REQ_ALL` (0x52): Quét và tìm TẤT CẢ các thẻ nằm trong vùng sóng, bao gồm cả thẻ đang bị ép ngủ (Halt).
+- `RC522_REQ_NOT_HALT` (0x26): Chỉ quét những thẻ đang thức (không quét thẻ đang bị Halt).
+
+**Chế độ xác thực mật khẩu (`authMode`)**
+- `RC522_AUTH_KEY_A` (0x60): Dùng mật khẩu chuẩn Key A.
+- `RC522_AUTH_KEY_B` (0x61): Dùng mật khẩu phụ Key B.
+
+**Phép toán Ví điện tử (`op`)**
+- `RC522_VALUE_RECHARGE` (0xC1): Lệnh Nạp thêm tiền (Cộng giá trị) vào block.
+- `RC522_VALUE_DEDUCT` (0xC0): Lệnh Trừ tiền (Khấu trừ giá trị) khỏi block.
+
 ## Tài liệu API (Danh sách hàm)
 
 ### Khởi tạo & Cấu hình
