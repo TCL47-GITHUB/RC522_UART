@@ -1,0 +1,24 @@
+# Arduino library and project ignores
+# Build and temporary files
+*.tmp
+*.bak
+~*
+*.hex
+*.elf
+*.bin
+*.a
+*.o
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE settings and folders (optional, un-comment if needed)
+# .vscode/
+# .idea/
+# *.code-workspace
