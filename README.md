@@ -59,6 +59,8 @@ void loop() {
 ## Available Examples
 1. `ReadUID.ino`: Simple script to detect cards and print their UID.
 2. `ReadWriteBlock.ino`: Shows the standard process to request, authenticate, read, and write a data block.
+3. `WalletOperation.ino`: Demonstrates how to use PcdValue commands to recharge, deduct, and backup an electronic wallet block on Mifare Classic.
+4. `SoftwareSerial.ino`: Shows how to connect the module to an Arduino Uno using `SoftwareSerial` pins 2 and 3.
 
 ## License
 MIT License. Feel free to use it in your projects.
