@@ -55,6 +55,29 @@ void loop() {
   }
 }
 ```
+```
+
+## API Reference
+
+### Initialization & Config
+- `bool begin()`: Initializes the module, sends the command to enter normal mode. Returns `true` if module responds correctly.
+- `bool reset()`: Soft resets the RC522 chip.
+- `bool antennaOn()` / `bool antennaOff()`: Turns the antenna TX on or off.
+
+### Card Operations
+- `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Detects a card in the field. `reqMode` is usually `RC522_REQ_ALL`. Returns `true` if a card is found.
+- `bool anticoll(uint8_t* uid)`: Reads the 4-byte UID of the detected card. Returns `true` on success.
+- `bool select(uint8_t* uid)`: Selects the card with the matching UID for further operations. Returns `true` on success.
+- `bool halt()`: Puts the currently selected card to sleep so it won't be read repeatedly.
+
+### Memory & Security (Mifare Classic 1K/4K)
+- `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Authenticates a block using a 6-byte key (`RC522_AUTH_KEY_A` or `RC522_AUTH_KEY_B`). MUST be called before reading or writing any block.
+- `bool readBlock(uint8_t blockAddr, uint8_t* recvData)`: Reads 16 bytes from the specified block into `recvData`.
+- `bool writeBlock(uint8_t blockAddr, uint8_t* writeData)`: Writes 16 bytes to the specified block.
+
+### Wallet / Value Operations
+- `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Performs an operation (`RC522_VALUE_RECHARGE` or `RC522_VALUE_DEDUCT`) on a correctly formatted Value Block.
+- `bool backupValue(uint8_t sourceBlock, uint8_t destBlock)`: Copies the value from the source block to the destination block.
 
 ## Available Examples
 1. `ReadUID.ino`: Simple script to detect cards and print their UID.
