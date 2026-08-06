@@ -62,23 +62,88 @@ void loop() {
 
 ### Khởi tạo & Cấu hình
 - `bool begin()`: Khởi tạo module, gửi lệnh để vào chế độ bình thường. Trả về `true` nếu module phản hồi chính xác.
+  ```cpp
+  if (rfid.begin()) {
+    Serial.println("RC522 Đã sẵn sàng!");
+  }
+  ```
 - `bool reset()`: Khởi động lại (soft-reset) chip RC522.
+  ```cpp
+  rfid.reset();
+  ```
 - `bool antennaOn()` / `bool antennaOff()`: Bật hoặc tắt phát sóng ăng-ten.
+  ```cpp
+  rfid.antennaOff(); // Tắt sóng
+  delay(100);
+  rfid.antennaOn();  // Bật sóng lại
+  ```
 
 ### Thao tác Thẻ cơ bản
 - `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Dò tìm thẻ trong vùng phủ sóng. `reqMode` thường là `RC522_REQ_ALL`. Trả về `true` nếu tìm thấy thẻ.
+  ```cpp
+  uint16_t tagType;
+  if (rfid.request(RC522_REQ_ALL, &tagType)) {
+    Serial.println("Có thẻ xuất hiện!");
+  }
+  ```
 - `bool anticoll(uint8_t* uid)`: Đọc mã thẻ (UID) 4-byte của thẻ vừa tìm thấy. Trả về `true` nếu thành công.
+  ```cpp
+  uint8_t uid[4];
+  if (rfid.anticoll(uid)) {
+    Serial.print("Mã UID: ");
+    Serial.println(uid[0], HEX);
+  }
+  ```
 - `bool select(uint8_t* uid)`: Chọn thẻ có mã UID tương ứng để thực hiện các thao tác chuyên sâu. Trả về `true` nếu thành công.
+  ```cpp
+  if (rfid.select(uid)) {
+    Serial.println("Đã chốt thẻ để đọc/ghi.");
+  }
+  ```
 - `bool halt()`: Đưa thẻ đang được chọn vào chế độ ngủ (sleep) để không bị đọc lặp lại liên tục.
+  ```cpp
+  rfid.halt(); // Gọi sau khi làm việc xong với thẻ
+  ```
 
 ### Bộ nhớ & Bảo mật (Mifare Classic 1K/4K)
 - `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Đăng nhập vào một block sử dụng mật khẩu 6-byte (`RC522_AUTH_KEY_A` hoặc `RC522_AUTH_KEY_B`). BẮT BUỘC phải gọi hàm này trước khi đọc/ghi bất kỳ block nào.
+  ```cpp
+  uint8_t key[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  if (rfid.authState(RC522_AUTH_KEY_A, 4, key, uid)) {
+    Serial.println("Đăng nhập Block 4 thành công!");
+  }
+  ```
 - `bool readBlock(uint8_t blockAddr, uint8_t* recvData)`: Đọc 16 byte từ block được chỉ định và lưu vào mảng `recvData`.
+  ```cpp
+  uint8_t data[16];
+  if (rfid.readBlock(4, data)) {
+    Serial.print("Dữ liệu Block 4: ");
+    Serial.println(data[0]);
+  }
+  ```
 - `bool writeBlock(uint8_t blockAddr, uint8_t* writeData)`: Ghi 16 byte dữ liệu vào block được chỉ định.
+  ```cpp
+  uint8_t data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  if (rfid.writeBlock(4, data)) {
+    Serial.println("Ghi dữ liệu thành công!");
+  }
+  ```
 
 ### Ví điện tử / Tính toán Giá trị
 - `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Thực hiện phép tính cộng/trừ tiền (`RC522_VALUE_RECHARGE` hoặc `RC522_VALUE_DEDUCT`) trên một block đã được định dạng chuẩn Ví điện tử.
+  ```cpp
+  // Nạp 500 đồng vào ví (Block 5)
+  if (rfid.valueOperation(RC522_VALUE_RECHARGE, 5, 500)) {
+    Serial.println("Nạp 500 thành công!");
+  }
+  ```
 - `bool backupValue(uint8_t sourceBlock, uint8_t destBlock)`: Sao lưu giá trị từ block nguồn sang block đích.
+  ```cpp
+  // Sao lưu số tiền từ block 5 sang block 6
+  if (rfid.backupValue(5, 6)) {
+    Serial.println("Backup thành công!");
+  }
+  ```
 
 ## Các Ví dụ đính kèm (Examples)
 1. `ReadUID.ino`: Đoạn code đơn giản để phát hiện thẻ và in mã UID ra màn hình.

@@ -63,23 +63,88 @@ void loop() {
 
 ### Initialization & Config
 - `bool begin()`: Initializes the module, sends the command to enter normal mode. Returns `true` if module responds correctly.
+  ```cpp
+  if (rfid.begin()) {
+    Serial.println("RC522 Started!");
+  }
+  ```
 - `bool reset()`: Soft resets the RC522 chip.
+  ```cpp
+  rfid.reset();
+  ```
 - `bool antennaOn()` / `bool antennaOff()`: Turns the antenna TX on or off.
+  ```cpp
+  rfid.antennaOff(); // Disable field
+  delay(100);
+  rfid.antennaOn();  // Enable field
+  ```
 
 ### Card Operations
 - `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Detects a card in the field. `reqMode` is usually `RC522_REQ_ALL`. Returns `true` if a card is found.
+  ```cpp
+  uint16_t tagType;
+  if (rfid.request(RC522_REQ_ALL, &tagType)) {
+    Serial.println("Card detected!");
+  }
+  ```
 - `bool anticoll(uint8_t* uid)`: Reads the 4-byte UID of the detected card. Returns `true` on success.
+  ```cpp
+  uint8_t uid[4];
+  if (rfid.anticoll(uid)) {
+    Serial.print("UID: ");
+    Serial.println(uid[0], HEX);
+  }
+  ```
 - `bool select(uint8_t* uid)`: Selects the card with the matching UID for further operations. Returns `true` on success.
+  ```cpp
+  if (rfid.select(uid)) {
+    Serial.println("Card selected for read/write.");
+  }
+  ```
 - `bool halt()`: Puts the currently selected card to sleep so it won't be read repeatedly.
+  ```cpp
+  rfid.halt(); // Call this after you are done with the card
+  ```
 
 ### Memory & Security (Mifare Classic 1K/4K)
 - `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Authenticates a block using a 6-byte key (`RC522_AUTH_KEY_A` or `RC522_AUTH_KEY_B`). MUST be called before reading or writing any block.
+  ```cpp
+  uint8_t key[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  if (rfid.authState(RC522_AUTH_KEY_A, 4, key, uid)) {
+    Serial.println("Block 4 Authenticated!");
+  }
+  ```
 - `bool readBlock(uint8_t blockAddr, uint8_t* recvData)`: Reads 16 bytes from the specified block into `recvData`.
+  ```cpp
+  uint8_t data[16];
+  if (rfid.readBlock(4, data)) {
+    Serial.print("Data block 4: ");
+    Serial.println(data[0]);
+  }
+  ```
 - `bool writeBlock(uint8_t blockAddr, uint8_t* writeData)`: Writes 16 bytes to the specified block.
+  ```cpp
+  uint8_t data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  if (rfid.writeBlock(4, data)) {
+    Serial.println("Write successful!");
+  }
+  ```
 
 ### Wallet / Value Operations
 - `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Performs an operation (`RC522_VALUE_RECHARGE` or `RC522_VALUE_DEDUCT`) on a correctly formatted Value Block.
+  ```cpp
+  // Add 500 to Wallet Block 5
+  if (rfid.valueOperation(RC522_VALUE_RECHARGE, 5, 500)) {
+    Serial.println("Recharged 500!");
+  }
+  ```
 - `bool backupValue(uint8_t sourceBlock, uint8_t destBlock)`: Copies the value from the source block to the destination block.
+  ```cpp
+  // Backup value from block 5 to block 6
+  if (rfid.backupValue(5, 6)) {
+    Serial.println("Backup successful!");
+  }
+  ```
 
 ## Available Examples
 1. `ReadUID.ino`: Simple script to detect cards and print their UID.
