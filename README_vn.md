@@ -167,6 +167,8 @@ Thư viện sử dụng các hằng số sau làm tham số truyền vào hàm:
 3. `WalletOperation.ino`: Hướng dẫn cách dùng lệnh PcdValue để nạp tiền, trừ tiền và sao lưu một block "ví điện tử" trên thẻ Mifare Classic.
 4. `FormatValueBlock.ino`: Hướng dẫn cách định dạng một block trống trở thành chuẩn Ví điện tử (16 byte) để dùng cho `WalletOperation`.
 5. `SoftwareSerial.ino`: Hướng dẫn cách cắm nối module với Arduino Uno sử dụng thư viện `SoftwareSerial` (chân 2 và 3).
+6. `DumpInfo.ino`: Đọc toàn bộ dữ liệu có trong thẻ (16 Sector, 64 Block) và in ra màn hình. Cực kỳ hữu ích để gỡ lỗi (debug) xem thẻ đang chứa nội dung gì.
+7. `ChangeKey.ino`: Hướng dẫn cách đổi mật khẩu Key A an toàn bằng cách đọc và giữ nguyên Access Bits cũ, giúp bạn không bao giờ làm hỏng (brick) thẻ.
 
 ## Giấy phép
 Giấy phép MIT. Bạn được phép thoải mái sử dụng thư viện này trong các dự án cá nhân và thương mại.

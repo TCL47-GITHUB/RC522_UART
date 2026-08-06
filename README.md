@@ -167,6 +167,8 @@ The library uses the following constants for its parameters:
 3. `WalletOperation.ino`: Demonstrates how to use PcdValue commands to recharge, deduct, and backup an electronic wallet block on Mifare Classic.
 4. `FormatValueBlock.ino`: Shows how to format a blank block into the strict 16-byte Value Block format required for WalletOperation.
 5. `SoftwareSerial.ino`: Shows how to connect the module to an Arduino Uno using `SoftwareSerial` pins 2 and 3.
+6. `DumpInfo.ino`: Reads and prints the entire contents of a Mifare Classic 1K card (all 16 sectors, 64 blocks) to the serial monitor. Useful for debugging.
+7. `ChangeKey.ino`: Demonstrates how to safely change Key A of a sector by reading the Sector Trailer first to preserve access bits, preventing accidental bricking of the card.
 
 ## License
 MIT License. Feel free to use it in your projects.
