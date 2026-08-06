@@ -80,7 +80,7 @@ void loop() {
   ```
 
 ### Card Operations
-- `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Detects a card in the field. `reqMode` is usually `RC522_REQ_ALL`. Returns `true` if a card is found.
+- `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Detects a card in the field. `reqMode` can be `RC522_REQ_ALL` (find all cards) or `RC522_REQ_IDLE` (find only cards not in sleep state). Returns `true` if a card is found.
   ```cpp
   uint16_t tagType;
   if (rfid.request(RC522_REQ_ALL, &tagType)) {
@@ -107,7 +107,7 @@ void loop() {
   ```
 
 ### Memory & Security (Mifare Classic 1K/4K)
-- `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Authenticates a block using a 6-byte key (`RC522_AUTH_KEY_A` or `RC522_AUTH_KEY_B`). MUST be called before reading or writing any block.
+- `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Authenticates a block using a 6-byte key. `authMode` can be `RC522_AUTH_KEY_A` or `RC522_AUTH_KEY_B`. MUST be called before reading or writing any block.
   ```cpp
   uint8_t key[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
   if (rfid.authState(RC522_AUTH_KEY_A, 4, key, uid)) {
@@ -131,7 +131,7 @@ void loop() {
   ```
 
 ### Wallet / Value Operations
-- `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Performs an operation (`RC522_VALUE_RECHARGE` or `RC522_VALUE_DEDUCT`) on a correctly formatted Value Block.
+- `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Performs a math operation on a formatted Value Block. `op` can be `RC522_VALUE_RECHARGE` (Add) or `RC522_VALUE_DEDUCT` (Subtract).
   ```cpp
   // Add 500 to Wallet Block 5
   if (rfid.valueOperation(RC522_VALUE_RECHARGE, 5, 500)) {

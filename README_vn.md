@@ -79,7 +79,7 @@ void loop() {
   ```
 
 ### Thao tác Thẻ cơ bản
-- `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Dò tìm thẻ trong vùng phủ sóng. `reqMode` thường là `RC522_REQ_ALL`. Trả về `true` nếu tìm thấy thẻ.
+- `bool request(uint8_t reqMode, uint16_t* tagType = nullptr)`: Dò tìm thẻ trong vùng phủ sóng. Tham số `reqMode` có thể là `RC522_REQ_ALL` (tìm mọi thẻ) hoặc `RC522_REQ_IDLE` (chỉ tìm thẻ chưa bị đưa vào chế độ ngủ). Trả về `true` nếu tìm thấy thẻ.
   ```cpp
   uint16_t tagType;
   if (rfid.request(RC522_REQ_ALL, &tagType)) {
@@ -106,7 +106,7 @@ void loop() {
   ```
 
 ### Bộ nhớ & Bảo mật (Mifare Classic 1K/4K)
-- `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Đăng nhập vào một block sử dụng mật khẩu 6-byte (`RC522_AUTH_KEY_A` hoặc `RC522_AUTH_KEY_B`). BẮT BUỘC phải gọi hàm này trước khi đọc/ghi bất kỳ block nào.
+- `bool authState(uint8_t authMode, uint8_t blockAddr, uint8_t* key, uint8_t* uid)`: Đăng nhập vào một block sử dụng mật khẩu 6-byte. Tham số `authMode` có thể là `RC522_AUTH_KEY_A` hoặc `RC522_AUTH_KEY_B`. BẮT BUỘC phải gọi hàm này trước khi đọc/ghi bất kỳ block nào.
   ```cpp
   uint8_t key[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
   if (rfid.authState(RC522_AUTH_KEY_A, 4, key, uid)) {
@@ -130,7 +130,7 @@ void loop() {
   ```
 
 ### Ví điện tử / Tính toán Giá trị
-- `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Thực hiện phép tính cộng/trừ tiền (`RC522_VALUE_RECHARGE` hoặc `RC522_VALUE_DEDUCT`) trên một block đã được định dạng chuẩn Ví điện tử.
+- `bool valueOperation(uint8_t op, uint8_t blockAddr, uint32_t value)`: Thực hiện phép toán trên một block chuẩn Ví điện tử. Tham số `op` có thể là `RC522_VALUE_RECHARGE` (Nạp/Cộng tiền) hoặc `RC522_VALUE_DEDUCT` (Trừ tiền).
   ```cpp
   // Nạp 500 đồng vào ví (Block 5)
   if (rfid.valueOperation(RC522_VALUE_RECHARGE, 5, 500)) {
