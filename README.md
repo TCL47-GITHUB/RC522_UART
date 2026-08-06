@@ -57,7 +57,6 @@ void loop() {
   }
 }
 ```
-```
 
 ## Constants & Definitions
 
